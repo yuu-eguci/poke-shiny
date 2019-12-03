@@ -12,9 +12,22 @@ import random
 import tkinter as Tk
 
 
-# 擬似色違い孵化
-# 0通常出現率1/4096 1ひかおま所持3/same 2国際孵化6/same 3ひかおま国際孵化8/same
 def poke_shiny(x):
+    """
+    疑似色違い孵化を行います。
+    色違いが生まれるまでに何個の卵が割られたかを返します。
+
+    Parameters
+    ----------
+    x : int
+        孵化の条件を指定。 x/4096 の確立で生まれる。
+
+    Returns
+    -------
+    brother_num : int
+        色違いが生まれるまでに割られた卵の数。
+    """
+
     success = times = 0
     while success == 0:
         a = random.randint(1, 4096)
