@@ -28,31 +28,11 @@ def poke_shiny(x):
         色違いが生まれるまでに割られた卵の数。
     """
 
-    success = times = 0
-    while success == 0:
-        a = random.randint(1, 4096)
-        times += 1
-        if x == 0:
-            if a == 1:
-                success = 1
-            else:
-                continue
-        elif x == 1:
-            if a <= 3:
-                success = 1
-            else:
-                continue
-        elif x == 2:
-            if a <= 6:
-                success = 1
-            else:
-                continue
-        else:
-            if a <= 8:
-                success = 1
-            else:
-                continue
-    return '\n\nHey! I\'m %s th brother.' % times
+    brother_num = 0
+    while 1:
+        brother_num += 1
+        if random.randint(1, 4096) <= x:
+            return brother_num
 
 
 class TkRoot(Tk.Frame):
@@ -73,15 +53,21 @@ class TkRoot(Tk.Frame):
         egg = f'image{os.sep}egg.gif'
         self.img2 = Tk.PhotoImage(file=egg)
 
-        table = ('With nothing 1/4096', 'With hikaoma 1/1365', 'International hatching 1/683', 'Int\'l hatching with hikaoma 1/512')
-        for l, name in enumerate(table):
+        table = {
+            1: 'With nothing 1/4096',
+            3: 'With hikaoma 1/1365',
+            6: 'International hatching 1/683',
+            8: 'Int\'l hatching with hikaoma 1/512',
+        }
+        for l, name in table.items():
             Tk.Radiobutton(self, text=name, value=l, variable=m).pack(anchor='w')
 
         if_second = Tk.IntVar()
         if_second.set(0)
 
         def foo():
-            result.set(poke_shiny(m.get()))
+            brother_num = poke_shiny(m.get())
+            result.set(f'\n\nHey! I\'m {brother_num} th brother.')
             if if_second.get() < 1:
                 Tk.Label(self, image=self.img).pack()
             if_second.set(1)
