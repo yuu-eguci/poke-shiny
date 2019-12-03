@@ -12,6 +12,14 @@ import random
 import tkinter as Tk
 
 
+WINNING_RATE_TABLE = {
+    1: 'With nothing 1/4096',
+    3: 'With hikaoma 1/1365',
+    6: 'International hatching 1/683',
+    8: 'Int\'l hatching with hikaoma 1/512',
+}
+
+
 def poke_shiny(x):
     """
     疑似色違い孵化を行います。
@@ -28,6 +36,11 @@ def poke_shiny(x):
         色違いが生まれるまでに割られた卵の数。
     """
 
+    # 確率がゼロとか None では計算にならない。エラーを発生させます。
+    if not x:
+        raise ValueError(f'{x} is invalid value.')
+
+    # x/4096 の確率で何度もトライし、成功したところでトライ回数を返します。
     brother_num = 0
     while 1:
         brother_num += 1
@@ -38,44 +51,84 @@ def poke_shiny(x):
 class TkRoot(Tk.Frame):
     def __init__(self, master=None):
         Tk.Frame.__init__(self, master)
-        self.master.geometry('300x300')
-        self.master.title('TkRoot')
 
+        # インスタンス変数: 結果メッセージ。
+        self.result_text = Tk.StringVar()
+        self.result_text.set('')
+
+        # インスタンス変数: Radiobutton の選択値。
+        self.radiobutton_value = Tk.IntVar()
+        self.radiobutton_value.set(0)
+
+        # インスタンス変数: 画像。
+        # NOTE: なぜかわからないが、 Button(image=), Label(image=) に設定する PhotoImage は変数化しないと表示されない。
+        self.tk_image_egg = Tk.PhotoImage(file='image/egg.gif')
+        self.tk_image_eevee = Tk.PhotoImage(file='image/eevee.gif')
+
+        # Frame の外観を作ります。
+        self.__create_frame_appearance()
+
+    def __create_frame_appearance(self):
+        """Frame の外観を作ります。構造は以下のとおりです。
+        - Root(300x300)
+            - Frame
+                - Four Radiobuttons
+                - Button(egg button)
+                - Label(result label)
+                - Label(eevee img)
+        """
+
+        # Root。
+        self.master.geometry('300x300')
+        self.master.title('poke-shiny')
+
+        # Frame。
         frame = Tk.Frame(self)
         frame.pack()
 
-        result = Tk.StringVar()
-        result.set('')
-        m = Tk.IntVar()
-        m.set(0)
-        eevee = f'image{os.sep}eevee.gif'
-        self.img = Tk.PhotoImage(file=eevee)
-        egg = f'image{os.sep}egg.gif'
-        self.img2 = Tk.PhotoImage(file=egg)
+        # 4つのラジオボタンです。(4つなのは WINNING_RATE_TABLE が4つだからだけど。)
+        for key, value in WINNING_RATE_TABLE.items():
+            Tk.Radiobutton(self,
+                           text=value,
+                           value=key,
+                           variable=self.radiobutton_value).pack(anchor='w')
 
-        table = {
-            1: 'With nothing 1/4096',
-            3: 'With hikaoma 1/1365',
-            6: 'International hatching 1/683',
-            8: 'Int\'l hatching with hikaoma 1/512',
-        }
-        for l, name in table.items():
-            Tk.Radiobutton(self, text=name, value=l, variable=m).pack(anchor='w')
+        # 卵画像のボタンです。
+        Tk.Button(self,
+                  image=self.tk_image_egg,
+                  pady=5,
+                  command=self.__on_push_button).pack()
 
-        if_second = Tk.IntVar()
-        if_second.set(0)
+        # 結果を表示するラベルです。
+        Tk.Label(self, textvariable=self.result_text).pack()
 
-        def foo():
-            brother_num = poke_shiny(m.get())
-            result.set(f'\n\nHey! I\'m {brother_num} th brother.')
-            if if_second.get() < 1:
-                Tk.Label(self, image=self.img).pack()
-            if_second.set(1)
-        Tk.Button(self, image=self.img2, pady=5, command=foo).pack()
-        Tk.Label(self, textvariable=result).pack()
+        # 色違いイーブイの画像を表示するラベル。
+        # NOTE:
+        #   このラベルはボタンが押されたときはじめて画像を表示します。
+        #   外部からアクセスするためインスタンス変数にします。
+        self.tk_eevee_image_label = Tk.Label(self)
+        self.tk_eevee_image_label.pack()
+
+    def __on_push_button(self):
+        """ボタンが押されたときのイベントです。"""
+
+        # すでに表示されている色違いイーブイ画像を取り払います。
+        self.tk_eevee_image_label.config(image='')
+
+        # 選択されている条件で孵化実験を行い、何番目の兄弟で色違いが生まれたか取得します。
+        try:
+            brother_num = poke_shiny(self.radiobutton_value.get())
+        except ValueError:
+            self.result_text.set('Select valid option!')
+            return
+
+        # 結果メッセージを表示します。
+        self.result_text.set(f'\n\nHey! I\'m {brother_num} th brother.')
+
+        # 色違いイーブイ画像を表示します。
+        self.tk_eevee_image_label.config(image=self.tk_image_eevee)
 
 
-if __name__ == '__main__':
-    tkroot = TkRoot()
-    tkroot.pack()
-    tkroot.mainloop()
+tkroot = TkRoot()
+tkroot.pack()
+tkroot.mainloop()
