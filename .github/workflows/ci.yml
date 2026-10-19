@@ -39,6 +39,20 @@ jobs:
           docker compose exec -T app python -c "import socket; print(socket.create_connection(('localhost', 5900)).recv(12))" | grep 'RFB'
           docker compose top app | grep 'poke_shiny.py'
 
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+
+      - name: Browser E2E via noVNC
+        run: |
+          uv run --only-group e2e playwright install --with-deps chromium
+          uv run --only-group e2e python e2e/novnc_check.py screenshots
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: screenshots
+          path: screenshots/
+          if-no-files-found: ignore
+
       - name: Show logs
         if: always()
         run: docker compose logs

@@ -50,8 +50,14 @@ docker compose run --rm app ruff format --check .
 
 # テスト (GUI テストは仮想ディスプレイ上で動く)
 docker compose run --rm app xvfb-run -a pytest
+
+# ブラウザ E2E (noVNC 越しに卵ボタンを押してスクリーンショットを撮る)
+docker compose up -d --build
+uv run --only-group e2e playwright install chromium
+uv run --only-group e2e python e2e/novnc_check.py screenshots
+docker compose down
 ```
 
 - 依存関係の管理は [uv](https://docs.astral.sh/uv/) 。設定は `pyproject.toml` と `uv.lock`。
 - tkinter が使える Python 3.15 があれば、ローカルで `uv run python poke_shiny.py` でも起動できる。
-- CI (GitHub Actions) は Docker ビルド、 lint 、テスト、 GUI の起動確認。
+- CI (GitHub Actions) は Docker ビルド、 lint 、テスト、 GUI の起動確認、ブラウザ E2E 。スクリーンショットは artifact に残る。

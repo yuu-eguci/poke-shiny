@@ -11,6 +11,9 @@ dev = [
     "pytest>=9.1.1",
     "ruff>=0.17.1",
 ]
+e2e = [
+    "playwright>=1.64.0",
+]
 
 [tool.uv]
 package = false
