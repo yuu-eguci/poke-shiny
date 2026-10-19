@@ -40,7 +40,9 @@ docker compose up --build
 
 ## ターミナルで遊びたい
 
-`--rate` を付けると GUI なしで孵化できる。値は色違いの確率 `x/4096` の `x` (1, 3, 6, 8) 。
+`--rate` を付けると GUI なしで孵化できる。
+指定できる値は `1`, `3`, `6`, `8`。
+色違いの確率は「指定した値 / 4096」。
 
 ```bash
 docker compose run --rm app python poke_shiny.py --rate 8
@@ -64,7 +66,7 @@ docker compose run --rm app ruff format --check .
 # テスト (GUI テストは仮想ディスプレイ上で動く)
 docker compose run --rm app xvfb-run -a pytest
 
-# ブラウザ E2E (noVNC 越しに卵ボタンを押してスクリーンショットを撮る)
+# ブラウザ E2E (卵ボタンの操作とスクリーンショット)
 docker compose up -d --build
 uv run --only-group e2e playwright install chromium
 uv run --only-group e2e python e2e/novnc_check.py screenshots
@@ -73,4 +75,4 @@ docker compose down
 
 - 依存関係の管理は [uv](https://docs.astral.sh/uv/) 。設定は `pyproject.toml` と `uv.lock`。
 - tkinter が使える Python 3.15 があれば、ローカルで `uv run python poke_shiny.py` でも起動できる。
-- CI (GitHub Actions) は Docker ビルド、 lint 、テスト、 CLI と GUI の起動確認、ブラウザ E2E 。スクリーンショットは artifact に残る。
+- CI (GitHub Actions) は Docker ビルド、 lint 、テスト、 CLI と GUI の起動確認、ブラウザ E2E 。スクリーンショットは CI の artifact から見られる。
