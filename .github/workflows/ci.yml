@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build
+        run: docker compose build
+
+      - name: Lint
+        run: |
+          docker compose run --rm app ruff check .
+          docker compose run --rm app ruff format --check .
+
+      - name: Test
+        run: docker compose run --rm app xvfb-run -a pytest
+
+      - name: GUI starts and noVNC responds
+        run: |
+          docker compose up -d
+          for i in $(seq 30); do
+            curl -fsS -o /dev/null http://127.0.0.1:6080/vnc.html && break
+            sleep 1
+          done
+          curl -fsS -o /dev/null http://127.0.0.1:6080/vnc.html
+          docker compose exec -T app python -c "import socket; print(socket.create_connection(('localhost', 5900)).recv(12))" | grep 'RFB'
+          docker compose top app | grep 'poke_shiny.py'
+
+      - name: Show logs
+        if: always()
+        run: docker compose logs
+
+      - name: Clean up
+        if: always()
+        run: docker compose down

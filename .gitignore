@@ -3,3 +3,6 @@
 .DS_Store
 __pycache__/
 .vscode
+.venv/
+.pytest_cache/
+.ruff_cache/

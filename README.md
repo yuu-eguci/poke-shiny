@@ -1,11 +1,57 @@
-
 PokeShiny
 ===
 
-tkinterを使ってるのでpython3専用。
 色違いイーブイが何個目の卵で生まれるかシミュレートするだけのクソの役にも立たんプログラム。
 しかし作るのは楽しい。
+
+- Docker: 対応!
+- Python: 3.15!
+- Linter: Ruff!
+- Test: pytest!
+- GUI: tkinter!
+
+## パッと実行してみたい
+
+```bash
+docker compose up --build
+# ブラウザで http://localhost:6080/vnc.html?autoconnect=1 を開く
+```
+
+- GUI はコンテナ内で動く。ブラウザへの表示は noVNC。
+- ポートの公開先は `127.0.0.1` のみ。
+- 止めるときは `Ctrl+C`。
 
 ![1](media/PS_1.jpg)
 
 ![2](media/PS_2.jpg)
+
+## 遊び方
+
+1. 孵化の条件をラジオボタンで選ぶ。
+2. 卵ボタンを押す。
+3. 色違いが何番目の兄弟で生まれたかと、色違いイーブイが出る。
+
+| 条件 | 色違いの確率 |
+| --- | --- |
+| With nothing | 1/4096 |
+| With hikaoma | 1/1365 |
+| International hatching | 1/683 |
+| Int'l hatching with hikaoma | 1/512 |
+
+## 開発
+
+```bash
+# ソースを変更したらイメージを作り直す
+docker compose build
+
+# lint と format チェック
+docker compose run --rm app ruff check .
+docker compose run --rm app ruff format --check .
+
+# テスト (GUI テストは仮想ディスプレイ上で動く)
+docker compose run --rm app xvfb-run -a pytest
+```
+
+- 依存関係の管理は [uv](https://docs.astral.sh/uv/) 。設定は `pyproject.toml` と `uv.lock`。
+- tkinter が使える Python 3.15 があれば、ローカルで `uv run python poke_shiny.py` でも起動できる。
+- CI (GitHub Actions) は Docker ビルド、 lint 、テスト、 GUI の起動確認。
