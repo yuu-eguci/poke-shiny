@@ -25,7 +25,8 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --locked
 
-RUN useradd --create-home app && chown app:app /app
+# Xvfb は root 以外だと X ソケット用ディレクトリを作れず ERROR を出すので、先に作っておきます。
+RUN useradd --create-home app && chown app:app /app && mkdir -m 1777 /tmp/.X11-unix
 COPY --chown=app:app . .
 USER app
 
