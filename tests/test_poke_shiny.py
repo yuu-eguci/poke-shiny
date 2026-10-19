@@ -79,3 +79,26 @@ def test_egg_button_shows_brother_number_and_shiny_eevee(app, monkeypatch):
 
     assert app.result_text.get() == "\n\nHey! I'm 1st brother."
     assert str(app.tk_eevee_image_label.cget('image')) == str(app.tk_image_eevee)
+
+
+def test_cli_hatches_once_with_rate(monkeypatch, capsys):
+    monkeypatch.setattr(poke_shiny.random, 'randint', lambda a, b: 1)
+
+    poke_shiny.main(['--rate', '8'])
+
+    assert capsys.readouterr().out == "Hey! I'm 1st brother.\n"
+
+
+def test_cli_prints_average_with_times(monkeypatch, capsys):
+    rolls = iter([1, 4096, 1, 4096, 4096, 1])
+    monkeypatch.setattr(poke_shiny.random, 'randint', lambda a, b: next(rolls))
+
+    poke_shiny.main(['--rate', '8', '--times', '3'])
+
+    assert capsys.readouterr().out == 'Average: 2.0 eggs (3 times)\n'
+
+
+@pytest.mark.parametrize('argv', [['--rate', '2'], ['--rate', '8', '--times', '0'], ['--times', '3']])
+def test_cli_rejects_invalid_arguments(argv):
+    with pytest.raises(SystemExit):
+        poke_shiny.main(argv)

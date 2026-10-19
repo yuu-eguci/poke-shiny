@@ -28,6 +28,11 @@ jobs:
       - name: Test
         run: docker compose run --rm app xvfb-run -a pytest
 
+      - name: CLI
+        run: |
+          docker compose run --rm -T app python poke_shiny.py --rate 8 | grep -E "^Hey! I'm [0-9]+(st|nd|rd|th) brother\.$"
+          docker compose run --rm -T app python poke_shiny.py --rate 8 --times 100 | grep -E '^Average: [0-9.]+ eggs \(100 times\)$'
+
       - name: GUI starts and noVNC responds
         run: |
           docker compose up -d

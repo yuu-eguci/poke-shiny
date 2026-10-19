@@ -4,6 +4,7 @@
 しかし作るのは楽しい。
 """
 
+import argparse
 import random
 import tkinter as tk
 from pathlib import Path
@@ -127,10 +128,39 @@ class TkRoot(tk.Frame):
         self.tk_eevee_image_label.config(image=self.tk_image_eevee)
 
 
-def main():
-    tkroot = TkRoot()
-    tkroot.pack()
-    tkroot.mainloop()
+def positive_int(value):
+    """argparse 用: 1 以上の整数だけを受け付けます。"""
+
+    n = int(value)
+    if n < 1:
+        raise argparse.ArgumentTypeError(f'{value} is not a positive integer.')
+    return n
+
+
+def main(argv=None):
+    """--rate があればターミナルで孵化し、なければ GUI を起動します。"""
+
+    parser = argparse.ArgumentParser(description='色違いイーブイが何個目の卵で生まれるかシミュレートします。')
+    parser.add_argument(
+        '--rate',
+        type=int,
+        choices=WINNING_RATE_TABLE,
+        help='GUI なしで孵化します。 x/4096 の x: ' + ', '.join(f'{k} ({v})' for k, v in WINNING_RATE_TABLE.items()),
+    )
+    parser.add_argument('--times', type=positive_int, default=1, help='孵化する回数。 2 回以上なら平均を表示します。')
+    args = parser.parse_args(argv)
+    if args.rate is None and args.times != 1:
+        parser.error('--times requires --rate.')
+
+    if args.rate is None:
+        tkroot = TkRoot()
+        tkroot.pack()
+        tkroot.mainloop()
+    elif args.times == 1:
+        print(f"Hey! I'm {ordinal(poke_shiny(args.rate))} brother.")
+    else:
+        total = sum(poke_shiny(args.rate) for _ in range(args.times))
+        print(f'Average: {total / args.times:.1f} eggs ({args.times} times)')
 
 
 if __name__ == '__main__':

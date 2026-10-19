@@ -38,6 +38,19 @@ docker compose up --build
 | International hatching | 1/683 |
 | Int'l hatching with hikaoma | 1/512 |
 
+## ターミナルで遊びたい
+
+`--rate` を付けると GUI なしで孵化できる。値は色違いの確率 `x/4096` の `x` (1, 3, 6, 8) 。
+
+```bash
+docker compose run --rm app python poke_shiny.py --rate 8
+# Hey! I'm 702nd brother.
+
+# --times で何回も孵化して平均を出す
+docker compose run --rm app python poke_shiny.py --rate 8 --times 1000
+# Average: 512.3 eggs (1000 times)
+```
+
 ## 開発
 
 ```bash
