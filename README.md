@@ -73,4 +73,4 @@ docker compose down
 
 - 依存関係の管理は [uv](https://docs.astral.sh/uv/) 。設定は `pyproject.toml` と `uv.lock`。
 - tkinter が使える Python 3.15 があれば、ローカルで `uv run python poke_shiny.py` でも起動できる。
-- CI (GitHub Actions) は Docker ビルド、 lint 、テスト、 GUI の起動確認、ブラウザ E2E 。スクリーンショットは artifact に残る。
+- CI (GitHub Actions) は Docker ビルド、 lint 、テスト、 CLI と GUI の起動確認、ブラウザ E2E 。スクリーンショットは artifact に残る。
