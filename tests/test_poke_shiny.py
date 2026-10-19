@@ -22,6 +22,24 @@ def test_poke_shiny_rejects_invalid_rate(x):
         poke_shiny.poke_shiny(x)
 
 
+@pytest.mark.parametrize(
+    ('n', 'expected'),
+    [
+        (1, '1st'),
+        (2, '2nd'),
+        (3, '3rd'),
+        (4, '4th'),
+        (11, '11th'),
+        (12, '12th'),
+        (13, '13th'),
+        (21, '21st'),
+        (112, '112th'),
+    ],
+)
+def test_ordinal(n, expected):
+    assert poke_shiny.ordinal(n) == expected
+
+
 @pytest.fixture
 def app(monkeypatch, tmp_path):
     # 画像の読み込みがカレントディレクトリに依存しないことも確認します。
@@ -59,5 +77,5 @@ def test_egg_button_shows_brother_number_and_shiny_eevee(app, monkeypatch):
 
     children_of(app, tk.Button)[0].invoke()
 
-    assert app.result_text.get() == "\n\nHey! I'm 1 th brother."
+    assert app.result_text.get() == "\n\nHey! I'm 1st brother."
     assert str(app.tk_eevee_image_label.cget('image')) == str(app.tk_image_eevee)

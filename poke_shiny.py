@@ -46,6 +46,16 @@ def poke_shiny(x):
             return brother_num
 
 
+def ordinal(n):
+    """数値を英語の序数 (1st, 2nd, 3rd, 4th ...) にします。"""
+
+    suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+    # 11, 12, 13 は 1, 2, 3 で終わっていても th になります。
+    if n % 100 in (11, 12, 13):
+        suffix = 'th'
+    return f'{n}{suffix}'
+
+
 class TkRoot(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
@@ -111,7 +121,7 @@ class TkRoot(tk.Frame):
             return
 
         # 結果メッセージを表示します。
-        self.result_text.set(f"\n\nHey! I'm {brother_num} th brother.")
+        self.result_text.set(f"\n\nHey! I'm {ordinal(brother_num)} brother.")
 
         # 色違いイーブイ画像を表示します。
         self.tk_eevee_image_label.config(image=self.tk_image_eevee)
